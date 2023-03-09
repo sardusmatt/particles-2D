@@ -1,4 +1,4 @@
-** particles-2D **
+***particles-2D***
 
 A simple 2D particle system, with support for forces (gravity and drag already implemented). Developed in TypeScript 4.x.
 
