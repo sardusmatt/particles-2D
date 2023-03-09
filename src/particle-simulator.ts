@@ -3,9 +3,9 @@ import {Particle} from "./particle";
 import {SimulationArea, Vector2} from "./math-utils";
 import {Drag, Gravity} from "./forces";
 
-const DEFAULT_MAX_PARTICLES_PER_SIMULATION: number = 500;
-const DEFAULT_GRAVITY: Gravity = new Gravity(new Vector2(0.0, 0.00001));
-const DEFAULT_DRAG: Drag = new Drag(0.001);
+const DEFAULT_MAX_CONCURRENT_PARTICLES: number = 50000;
+const DEFAULT_GRAVITY: Gravity = new Gravity(new Vector2(0.0, 0.00004));
+const DEFAULT_DRAG: Drag = new Drag(0.00005);
 /**
  * ParticleSimulator class is a container for the simulated emitters and particles
  *  # emitters: currently active emitters
@@ -34,7 +34,7 @@ class ParticleSimulator {
     constructor(maxNumberOfParticles: number, minX: number, maxX: number, minY: number, maxY: number) {
         this.emitters = [];
         this.particles =  [];
-        this.maxParticles = (maxNumberOfParticles && maxNumberOfParticles > 0) ? maxNumberOfParticles : DEFAULT_MAX_PARTICLES_PER_SIMULATION;
+        this.maxParticles = (maxNumberOfParticles && maxNumberOfParticles > 0) ? maxNumberOfParticles : DEFAULT_MAX_CONCURRENT_PARTICLES;
         this.boundaries = new SimulationArea(minX, maxX, minY, maxY);
     }
 
@@ -121,10 +121,14 @@ class ParticleSimulator {
      * @param {CanvasRenderingContext2D} context to draw particles on
      */
     render (context: CanvasRenderingContext2D) {
+        this.emitters.forEach(e => {
+            Emitter.draw(e, context);
+        });
+
         this.particles.forEach(p => {
             Particle.draw(p, context);
         });
     }
 }
 
-export {DEFAULT_MAX_PARTICLES_PER_SIMULATION, ParticleSimulator};
+export {DEFAULT_MAX_CONCURRENT_PARTICLES, ParticleSimulator};

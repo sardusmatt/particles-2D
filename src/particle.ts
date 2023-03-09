@@ -99,8 +99,11 @@ class Particle {
      */
     update (elapsedTime: number) : boolean {
         this.age += elapsedTime;
-        if (this.getLifeLeft() <= 0) // the particle is going to disappear and will not be drawn, so avoid updating
+
+        // time is over: the particle is going to disappear and will not be drawn, so avoid updating
+        if (this.getLifeLeft() <= 0) {
             return false;
+        }
 
         // else update attributes based on the elapsed time
         // compute acceleration term

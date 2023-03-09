@@ -36,8 +36,16 @@ class Vector2 {
      * Create and return a copy of the vector
      * @return {Vector2}
      */
-    copy  () : Vector2 {
+    copy () : Vector2 {
         return new Vector2(this.x, this.y);
+    }
+
+    /**
+     * Compute and return the magnitude |v| of the vector
+     * @return {number}
+     */
+    magnitude () : number {
+        return Math.sqrt((this.x*this.x)+(this.y*this.y));
     }
 
     /**

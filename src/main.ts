@@ -1,37 +1,50 @@
-import {ParticleSimulator} from "./particle-simulator";
+import {ParticleSimulator, DEFAULT_MAX_CONCURRENT_PARTICLES} from "./particle-simulator";
 import {Vector2} from "./math-utils";
 import {Emitter} from "./emitter";
 
 declare global {
-    interface Window { simulation: any; }
+    interface Window { startSim: any; }
 }
 
 /* Some key codes to avoid magic numbers */
 const KEY_CODES = {LEFT:37, DOWN:40, RIGHT:39, UP:38, END:35, HOME:36, SPACE:32,
     F2: 113, F4: 115, T: 84, P: 80, R: 82, W: 87};
 
-const TICK_INTERVAL: number = 1000/60;   // desired FPS 60
-
 class Simulation {
-    private canvas: HTMLCanvasElement | undefined; // canvas element reference
-    private context2D: CanvasRenderingContext2D | undefined;
-    private timeOfLastUpdate: number = new Date().getTime();
-    private particleSimulator: ParticleSimulator | undefined;
+    private canvas: HTMLCanvasElement; // canvas element reference
+    private context2D: CanvasRenderingContext2D | null;
+    private timeOfLastUpdate: number;
+    private particleSimulator: ParticleSimulator;
 
     /* Current keyboard input */
-    private downKeys: string[] = [];
+    private downKeys: string[];
 
     /* Mouse input */
     private prevMousePos: Vector2 = new Vector2(0.0, 0.0);
     private mouseDown: boolean = false;
 
-    /**
-     * Adjusts canvas size based on the size of the client window
-     */
-    setCanvasSize () {
-        const canvasNode = document.getElementById('canvas') as HTMLCanvasElement;
-        canvasNode.height = window.innerHeight * 0.95;
-        canvasNode.width = window.innerWidth * 0.98;
+    constructor(doc: Document, windowHeight: number, windowWidth: number) {
+        this.canvas = doc.getElementById('canvas') as HTMLCanvasElement;
+        // Enlarge canvas based on the width and height of the client window
+        this.canvas.height = windowHeight * 0.95;
+        this.canvas.width = windowWidth * 0.98;
+        this.context2D = this.canvas.getContext("2d");
+        // Set the maximum number of active particles and the boundaries of the simulation area
+        this.particleSimulator = new ParticleSimulator(DEFAULT_MAX_CONCURRENT_PARTICLES, 0, this.canvas.width, 0, this.canvas.height);
+        // initialise with the current time
+        this.timeOfLastUpdate = new Date().getTime();
+
+        /* Current keyboard input */
+        this.downKeys = [];
+        /* Mouse input */
+        this.prevMousePos = new Vector2(0.0, 0.0);
+        this.mouseDown = false;
+        this.attachInputHooks(doc);
+    }
+
+    private attachInputHooks (doc: Document) {
+        /* Keyboard and mouse input hooks */
+        // TODO
     }
 
     handleKeyDown (event: KeyboardEvent) {
@@ -61,21 +74,17 @@ class Simulation {
 
     handleMouseUp (event: MouseEvent) {
         this.mouseDown = false;
-
-        // TODO
     }
 
     handleMouseDown (event: MouseEvent) {
         this.mouseDown = true;
-
-        // TODO
     }
 
     /**
      * Draw a new frame on the canvas
      */
     draw () {
-        if (this.context2D && this.canvas && this.particleSimulator) {
+        if (this.context2D) {
             // Clear canvas context
             this.context2D.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.context2D.fillStyle = "black";
@@ -85,7 +94,7 @@ class Simulation {
             this.particleSimulator.render(this.context2D);
         }
         else {
-            console.warn('Undefined 2D context, canvas and/or particle simulator instance: skip drawing');
+            console.warn('null 2D context, skipping draw');
         }
     }
 
@@ -94,9 +103,7 @@ class Simulation {
      * @param {number} elapsedTime
      */
     update (elapsedTime: number) {
-        if (this.particleSimulator) {
-            this.particleSimulator.update(elapsedTime);
-        }
+        this.particleSimulator.update(elapsedTime);
     }
 
     /**
@@ -117,49 +124,28 @@ class Simulation {
     /**
      * Particle system initialization
      */
-    initSimulation () {
-        if (this.canvas) {
-            // For now no user driven init, simply create a couple of emitters and let them rip
-            // Set the maximum number of active particles and the boundaries of the simulation area
-            this.particleSimulator = new ParticleSimulator(2000, 0, this.canvas.width, 0, this.canvas.height);
-
-            // Add two emitters at the bottom left and bottom right of the canvas
-            // The first one randomizes the magnitude of the initial velocity applied to the
-            // emitted particles, while the second does not
-            this.particleSimulator.addEmitter(new Emitter(this.canvas.width - 50, this.canvas.height - 10, -0.2, -0.25, 100, true));
-            this.particleSimulator.addEmitter(new Emitter(50, this.canvas.height - 10, 0.1, -0.1, 100, false));
-        }
-        else {
-            console.warn('Failed to initialise simulation, no canvas reference');
-        }
-    }
-
-    /**
-     * The startup function is called every time the page is loaded or refreshed. It initializes the canvas and 2D context,
-     * performs the setup of the particle system and starts the simulation
-     */
-    startup () {
-        // Enlarge canvas based on the width and height of the client window
-        this.setCanvasSize();
-
-        this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
-        this.context2D = this.canvas.getContext("2d") || undefined;
-
-        /* Keyboard and mouse input hooks */
-        // TODO
-        document.onkeydown = this.handleKeyDown;
-        document.onkeyup = this.handleKeyUp;
-        document.onmousemove = this.handleMouseMove;
-        document.onmousedown = this.handleMouseDown;
-        document.onmouseup = this.handleMouseUp;
-
-        this.initSimulation();
-
-        /* Call update and draw every tickInterval milliseconds */
-        setInterval(this.tick, TICK_INTERVAL);
+    initDemoSimulation () {
+        // For now no user driven init, simply create a couple of emitters and let them rip
+        // Add two emitters at the bottom left and bottom right of the canvas
+        // The first one randomizes the magnitude of the initial velocity applied to the
+        // emitted particles, while the second does not
+        this.particleSimulator.addEmitter(new Emitter(200, this.canvas.height - 200, 0.1, -0.15, 25, 80, false));
+        this.particleSimulator.addEmitter(new Emitter(this.canvas.width / 2 + 50, this.canvas.height / 2 - 10, -0.2, -0.2, 27, 25, true));
     }
 }
 
-window.simulation = new Simulation();
+window.startSim = () => {
+    const sim = new Simulation(document, window.innerHeight, window.innerWidth);
+    sim.initDemoSimulation();
+
+    /* Call update and draw every time the browser is able to repaint */
+    const simulate = () => {
+        sim.tick();
+        window.requestAnimationFrame(simulate);
+    };
+    window.requestAnimationFrame(simulate);
+};
+
+
 
 
