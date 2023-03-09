@@ -26,8 +26,8 @@ class Simulation {
     constructor(doc: Document, windowHeight: number, windowWidth: number) {
         this.canvas = doc.getElementById('canvas') as HTMLCanvasElement;
         // Enlarge canvas based on the width and height of the client window
-        this.canvas.height = windowHeight * 0.95;
-        this.canvas.width = windowWidth * 0.98;
+        this.canvas.height = windowHeight;
+        this.canvas.width = windowWidth;
         this.context2D = this.canvas.getContext("2d");
         // Set the maximum number of active particles and the boundaries of the simulation area
         this.particleSimulator = new ParticleSimulator(DEFAULT_MAX_CONCURRENT_PARTICLES, 0, this.canvas.width, 0, this.canvas.height);
@@ -129,21 +129,26 @@ class Simulation {
         // Add two emitters at the bottom left and bottom right of the canvas
         // The first one randomizes the magnitude of the initial velocity applied to the
         // emitted particles, while the second does not
-        this.particleSimulator.addEmitter(new Emitter(200, this.canvas.height - 200, 0.1, -0.15, 25, 80, false));
-        this.particleSimulator.addEmitter(new Emitter(this.canvas.width / 2 + 50, this.canvas.height / 2 - 10, -0.2, -0.2, 27, 25, true));
+        this.particleSimulator.addEmitter(new Emitter(200, this.canvas.height - 200, 0.1, -0.15, 16, 90, false));
+        this.particleSimulator.addEmitter(new Emitter(this.canvas.width / 2 + 50, this.canvas.height / 2 - 10, -0.2, -0.2, 15, 30, true));
     }
 }
 
 window.startSim = () => {
     const sim = new Simulation(document, window.innerHeight, window.innerWidth);
     sim.initDemoSimulation();
+    const fps = 60;
 
-    /* Call update and draw every time the browser is able to repaint */
     const simulate = () => {
         sim.tick();
-        window.requestAnimationFrame(simulate);
+
+        // force fps, since just using requestAnimationFrame doesn't provide a consistent fps on mobile
+        setTimeout(() => {
+            requestAnimationFrame(simulate);
+        }, 1000 / fps);
     };
-    window.requestAnimationFrame(simulate);
+
+    requestAnimationFrame(simulate);
 };
 
 

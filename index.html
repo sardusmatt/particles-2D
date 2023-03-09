@@ -5,7 +5,11 @@
     <title>2D Particles Sim</title>
 </head>
 
-<body onload="window.startSim();">
-<canvas id="canvas" width=10 height=10></canvas>
+<body style="margin: 0; padding: 0; overflow: hidden;" onload="window.startSim();">
+<canvas style="position: absolute;" id="canvas" width=10 height=10></canvas>
+<div style="position: absolute; padding: 20px 10px 10px 20px;">
+    <p style="color: white;">For now just 2 particle emitters (one with randomised particle speed and direction), with gravity and drag forces enabled.</p>
+    <p style="color: white;">I am planning to add a React GUI to set simulation parameters, add/remove emitters etc.</p>
+</div>
 </body>
 </html>
