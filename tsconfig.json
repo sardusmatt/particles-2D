@@ -1,8 +1,13 @@
 {
   "compilerOptions": {
-    "outDir": "./built",
+    "outDir": "./dist",
     "sourceMap": true,
-    "lib": ["es2017", "dom"]
+    "module": "esnext",
+    "target": "esnext",
+    "allowJs": true,
+    "lib": ["es2017", "dom"],
+    "strict": true,
+    "alwaysStrict": true
   },
   "include": ["./src/**/*"]
 }

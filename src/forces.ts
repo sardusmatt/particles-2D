@@ -11,7 +11,7 @@ import {Particle} from "./particle";
  * differently for different particles (e.g., anchored springs)
  */
 interface Force {
-    addToParticle (particle: Particle, elapsedTime?: number);
+    addToParticle (particle: Particle, elapsedTime?: number): void;
 }
 
 class Gravity implements Force {

@@ -19,7 +19,7 @@ class Vector2 {
      * Scale the vector by the specified amount. Assuming scalar is always defined
      * @param {number} scalar
      */
-    scale (scalar) {
+    scale (scalar: number) {
         this.x *= scalar;
         this.y *= scalar;
     }
@@ -64,7 +64,7 @@ class SimulationArea {
      * @param maxY
      * @constructor
      */
-    constructor (minX, maxX, minY, maxY) {
+    constructor (minX: number, maxX: number, minY: number, maxY: number) {
         this.minX = minX;
         this.maxX = maxX;
         this.minY = minY;

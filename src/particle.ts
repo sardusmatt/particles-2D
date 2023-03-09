@@ -125,7 +125,7 @@ class Particle {
      * @param {Particle} particle the particle to be drawn
      * @param {CanvasRenderingContext2D} context 2D Canvas Context object
      */
-    static draw (particle, context) {
+    static draw (particle: Particle, context: CanvasRenderingContext2D) {
         context.beginPath();
         // position, radius, start angle, end angle
         context.arc(particle.getPosition().x, particle.getPosition().y, particle.getRadius(), 0, Math.PI * 2);

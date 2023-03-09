@@ -1,4 +1,4 @@
-import {ParticleSimulator} from "./particleSimulator";
+import {ParticleSimulator} from "./particle-simulator";
 import {Vector2} from "./math-utils";
 import {Emitter} from "./emitter";
 
@@ -13,13 +13,13 @@ const KEY_CODES = {LEFT:37, DOWN:40, RIGHT:39, UP:38, END:35, HOME:36, SPACE:32,
 const TICK_INTERVAL: number = 1000/60;   // desired FPS 60
 
 class Simulation {
-    private canvas: HTMLCanvasElement; // canvas element reference
-    private context2D: CanvasRenderingContext2D;
+    private canvas: HTMLCanvasElement | undefined; // canvas element reference
+    private context2D: CanvasRenderingContext2D | undefined;
     private timeOfLastUpdate: number = new Date().getTime();
-    private particleSimulator: ParticleSimulator;
+    private particleSimulator: ParticleSimulator | undefined;
 
     /* Current keyboard input */
-    private downKeys: string[];
+    private downKeys: string[] = [];
 
     /* Mouse input */
     private prevMousePos: Vector2 = new Vector2(0.0, 0.0);
@@ -75,13 +75,18 @@ class Simulation {
      * Draw a new frame on the canvas
      */
     draw () {
-        // Clear canvas context
-        this.context2D.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.context2D.fillStyle = "black";
-        this.context2D.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        if (this.context2D && this.canvas && this.particleSimulator) {
+            // Clear canvas context
+            this.context2D.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context2D.fillStyle = "black";
+            this.context2D.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Draw particles
-        this.particleSimulator.render(this.context2D);
+            // Draw particles
+            this.particleSimulator.render(this.context2D);
+        }
+        else {
+            console.warn('Undefined 2D context, canvas and/or particle simulator instance: skip drawing');
+        }
     }
 
     /**
@@ -89,7 +94,9 @@ class Simulation {
      * @param {number} elapsedTime
      */
     update (elapsedTime: number) {
-        this.particleSimulator.update(elapsedTime);
+        if (this.particleSimulator) {
+            this.particleSimulator.update(elapsedTime);
+        }
     }
 
     /**
@@ -111,16 +118,20 @@ class Simulation {
      * Particle system initialization
      */
     initSimulation () {
-        // For now no user driven init, simply create a couple of emitters and let them rip
-        // Set the maximum number of active particles and the boundaries of the simulation area
-        this.particleSimulator = new ParticleSimulator(2000, 0, this.canvas.width, 0, this.canvas.height);
+        if (this.canvas) {
+            // For now no user driven init, simply create a couple of emitters and let them rip
+            // Set the maximum number of active particles and the boundaries of the simulation area
+            this.particleSimulator = new ParticleSimulator(2000, 0, this.canvas.width, 0, this.canvas.height);
 
-        // Add two emitters at the bottom left and bottom right of the canvas
-        // The first one randomizes the magnitude of the initial velocity applied to the
-        // emitted particles, while the second does not
-        this.particleSimulator.addEmitter(new Emitter(this.canvas.width - 50, this.canvas.height - 10, -0.2, -0.25, 100, true));
-        this.particleSimulator.addEmitter(new Emitter(50, this.canvas.height - 10, 0.1, -0.1, 100, false));
-
+            // Add two emitters at the bottom left and bottom right of the canvas
+            // The first one randomizes the magnitude of the initial velocity applied to the
+            // emitted particles, while the second does not
+            this.particleSimulator.addEmitter(new Emitter(this.canvas.width - 50, this.canvas.height - 10, -0.2, -0.25, 100, true));
+            this.particleSimulator.addEmitter(new Emitter(50, this.canvas.height - 10, 0.1, -0.1, 100, false));
+        }
+        else {
+            console.warn('Failed to initialise simulation, no canvas reference');
+        }
     }
 
     /**
@@ -132,7 +143,7 @@ class Simulation {
         this.setCanvasSize();
 
         this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
-        this.context2D = this.canvas.getContext("2d");
+        this.context2D = this.canvas.getContext("2d") || undefined;
 
         /* Keyboard and mouse input hooks */
         // TODO

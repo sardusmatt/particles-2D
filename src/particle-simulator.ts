@@ -21,8 +21,8 @@ class ParticleSimulator {
     private boundaries: SimulationArea;
 
     // simulation forces
-    private gravity: Gravity = DEFAULT_GRAVITY;
-    private drag: Drag = DEFAULT_DRAG;
+    private gravity: Gravity | undefined = DEFAULT_GRAVITY;
+    private drag: Drag | undefined = DEFAULT_DRAG;
 
     /**
      * @param {number} maxNumberOfParticles max numbers of particles active at any time
@@ -31,7 +31,7 @@ class ParticleSimulator {
      * @param {number} minY minimum Y of the simulation area
      * @param {number} maxY maximum Y of the simulation area
      */
-    constructor(maxNumberOfParticles, minX, maxX, minY, maxY) {
+    constructor(maxNumberOfParticles: number, minX: number, maxX: number, minY: number, maxY: number) {
         this.emitters = [];
         this.particles =  [];
         this.maxParticles = (maxNumberOfParticles && maxNumberOfParticles > 0) ? maxNumberOfParticles : DEFAULT_MAX_PARTICLES_PER_SIMULATION;
@@ -79,9 +79,9 @@ class ParticleSimulator {
      * Update existing particles, removing them if they are not active anymore, then add new particles from the emitters
      * @param {number} elapsedTime
      */
-    update (elapsedTime) {
+    update (elapsedTime: number) {
         // Update current particle list
-        const currentlyActiveParticles = [];
+        const currentlyActiveParticles: Particle[] = [];
         this.particles.forEach(p => {
             // Add forces
             if (this.gravity) {
